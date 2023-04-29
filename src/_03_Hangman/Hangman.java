@@ -2,11 +2,14 @@ package _03_Hangman;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class Hangman implements KeyListener {
@@ -15,31 +18,53 @@ public class Hangman implements KeyListener {
 	int othernum = Integer.parseInt(num);
 	static Stack<String> s = new Stack<String>();
 	JFrame frame = new JFrame();
-	JTextField wordletters = new JTextField();
-	JLabel wordsize = new JLabel();
+	JPanel panel = new JPanel();
+	JTextField wordletters = new JTextField(1);
 	JLabel displayedword = new JLabel();
 	int wordlength = 0;
-	int lives = 0;
-	int x = 0;
-	String word = ""; 
+	JLabel howmanywords = new JLabel();
+	int lives = 10;
+	JLabel showlives = new JLabel();
+	String word = "";
+	ArrayList<Character> listofletters = new ArrayList<Character>();
 	Boolean hi = false;
+	String underscore = "_";
 
-	public void stuff() {
-		lives = 10;
+	public void setup() {
+		push();
+		stuff();
+	}
+
+	public void push() {
 		for (int i = 0; i < othernum; i++) {
 			s.push(Utilities.readRandomLineFromFile("dictionary.txt"));
 		}
+	}
+
+	public void stuff() {
 		System.out.println(s);
-		word = s.pop();
-		wordlength = word.length();
-		for (int i = 0; i < wordlength; i++) {
+		if (s.size() != 0) {
+			word = s.pop();
+		} else {
+			JOptionPane.showMessageDialog(null, "You finished all your words! I'll set up another round for you!"
+					+ "You can close this window after the new one is created!");
+			Hangman h = new Hangman();
+			h.setup();
 		}
-		frame.add(wordletters);
-		frame.add(wordsize);
-		wordletters.setText("");
-		wordletters.setSize(50, 50);
-		wordsize.setSize(200, 200);
-		wordsize.setText(wordlength + " characters long total");
+		wordlength = word.length();
+		panel.add(wordletters);
+		panel.add(howmanywords);
+		panel.add(displayedword);
+		panel.add(showlives);
+		showlives.setText("Lives: " + lives);
+		howmanywords.setText("This word has " + wordlength + " letters");
+		for (int i = 0; i < wordlength; i++) {
+			displayedword.setText(displayedword.getText() + underscore);
+		}
+		displayedword.setSize(300, 300);
+		wordletters.setSize(1, 1);
+		frame.add(panel);
+		frame.pack();
 		frame.setVisible(true);
 		wordletters.addKeyListener(this);
 
@@ -47,40 +72,49 @@ public class Hangman implements KeyListener {
 
 	public static void main(String[] args) {
 		Hangman h = new Hangman();
-		h.stuff();
+		h.setup();
 
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
+
 		if (lives != 0) {
+			hi = false;
+			Character a = e.getKeyChar();
 			for (int i = 0; i < wordlength; i++) {
-				int x = i;
-				hi = false;
-				Character keyevent = word.charAt(x);
-				x += 1;
-				Character a = e.getKeyChar();
-				if (a.compareTo(keyevent) == 0) {
-					displayedword.setText(displayedword + a.toString());
+				if (a == word.charAt(i)) {
+					StringBuilder hello = new StringBuilder(displayedword.getText());
+					hello.replace(i, i + 1, a + "");
+					hello.toString();
+					displayedword.setText(hello + "");
 					hi = true;
+					frame.pack();
 				}
-				
 			}
-			if (hi == false) {
+			if (hi == false && e.getKeyCode() != 8) {
 				lives -= 1;
-				System.out.println("testboy");
+				System.out.println("you're wrong L Bozo. You have " + lives + " lives left.");
+			} else if (lives == 0) {
+
+				System.out.println("YOURE OUT OF LIVES!");
 			}
+			showlives.setText("Lives: " + lives);
+		}
+		frame.pack();
+		if (displayedword.getText().equalsIgnoreCase(word)) {
+			JOptionPane.showMessageDialog(null, "Next word! Congratulations!");
+			displayedword.setText("");
+			howmanywords.setText("");
+			stuff();
 		}
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 }

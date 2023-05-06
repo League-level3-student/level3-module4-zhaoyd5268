@@ -46,7 +46,7 @@ public class MazeMaker {
 		} else {
 			maze.cells[a][e].setSouthWall(false);
 		}
-		if (b==0) {
+		if (b == 0) {
 			maze.cells[b][e].setWestWall(false);
 		} else {
 			maze.cells[b][e].setEastWall(false);
@@ -55,56 +55,73 @@ public class MazeMaker {
 		// 2. select a random cell in the maze to start
 
 		// 3. call the selectNextPath method with the randomly selected cell
-		selectNextPath(maze.cells[ran.nextInt(5)][ran.nextInt(5)]);
+		selectNextPath(maze.cells[ran.nextInt(3)][ran.nextInt(3)]);
 		return maze;
 	}
 
 	// 4. Complete the selectNextPathMethod
 	private static void selectNextPath(Cell currentCell) {
 		// A. SET currentCell as visited
-		Random ran = new Random();
-		int howmany = 0;
+		int counter = 0;
 		currentCell.setBeenVisited(true);
-		int chance1 = ran.nextInt(2);
-		int chance2 = ran.nextInt(2);
-		int chance3 = ran.nextInt(2);
-		int chance4 = ran.nextInt(2);
-		// B. check for unvisited neighbors using the cell
+		int chance = 0;
+		// B. check for unvisited neighbors using the cell\
+		if (currentCell.getRow() + 1 < 5) {
+			if (maze.cells[currentCell.getRow() + 1][currentCell.getCol()].hasBeenVisited() == false) {
+				chance = randGen.nextInt(2);
+				if (chance == 0) {
+					currentCell = maze.cells[currentCell.getRow() + 1][currentCell.getCol()];
+					uncheckedCells.push(maze.cells[currentCell.getRow() + 1][currentCell.getCol()]);
+					currentCell.setSouthWall(false);
+					currentCell = maze.cells[currentCell.getRow() + 1][currentCell.getCol()];
+					selectNextPath(currentCell);
+					counter += 1;
+				}
+			}
+		}
+		if (currentCell.getRow() - 1 < -1) {
+			if (currentCell.hasNorthWall()
+					&& maze.cells[currentCell.getRow() - 1][currentCell.getCol()].hasBeenVisited() == false) {
+				chance = randGen.nextInt(2);
+				if (chance == 0 && counter == 0) {
+					currentCell = maze.cells[currentCell.getRow() - 1][currentCell.getCol()];
+					uncheckedCells.push(maze.cells[currentCell.getRow() - 1][currentCell.getCol()]);
+					currentCell.setNorthWall(false);
+					currentCell = maze.cells[currentCell.getRow() - 1][currentCell.getCol()];
+					selectNextPath(currentCell);
+					counter += 1;
+				}
+			}
+		}
+		if (currentCell.getCol() - 1 < -1) {
+			if (currentCell.hasWestWall()
+					&& maze.cells[currentCell.getRow()][currentCell.getCol() - 1].hasBeenVisited() == false) {
+				chance = randGen.nextInt(2);
+				if (chance == 0 && counter == 0) {
+					currentCell = maze.cells[currentCell.getRow()][currentCell.getCol() - 1];
+					uncheckedCells.push(maze.cells[currentCell.getRow() + 1][currentCell.getCol()]);
+					currentCell.setWestWall(false);
+					currentCell = maze.cells[currentCell.getRow() + 1][currentCell.getCol()];
+					selectNextPath(currentCell);
+					counter += 1;
+				}
+			}
+		}
+		if (currentCell.getCol() + 1 < 5) {
+			if (currentCell.hasEastWall()
+					&& maze.cells[currentCell.getRow()][currentCell.getCol() + 1].hasBeenVisited() == false) {
+				chance = randGen.nextInt(2);
+				if (chance == 0 && counter == 0) {
+					currentCell = maze.cells[currentCell.getRow()][currentCell.getCol() + 1];
+					uncheckedCells.push(maze.cells[currentCell.getRow()][currentCell.getCol() + 1]);
+					currentCell.setEastWall(false);
+					currentCell = maze.cells[currentCell.getRow()][currentCell.getCol() + 1];
+					selectNextPath(currentCell);
+					counter += 1;
+				}
+			}
+		}
 
-     		if (maze.cells[currentCell.getRow()+1][currentCell.getCol()].hasBeenVisited() == false) {
-     			howmany+=1;
-     			
-     			if (chance1 == 0) {
-     				uncheckedCells.push(maze.cells[currentCell.getRow()+1][currentCell.getCol()]);
-     				maze.cells[currentCell.getRow()+1][currentCell.getCol()].setBeenVisited(true);
-     				currentCell = maze.cells[currentCell.getRow()+1][currentCell.getCol()];
-     			}
-     		}
-     		if (maze.cells[currentCell.getRow()-1][currentCell.getCol()].hasBeenVisited() == false) {
-     			howmany+=1;
-     			if (chance2 == 0 && chance1 != 1) {
-     				uncheckedCells.push(maze.cells[currentCell.getRow()-1][currentCell.getCol()]);
-     				maze.cells[currentCell.getRow()-1][currentCell.getCol()].setBeenVisited(true);
-     				currentCell = maze.cells[currentCell.getRow()-1][currentCell.getCol()-1];
-     			}
-     		}
-     		if (maze.cells[currentCell.getRow()][currentCell.getCol()+1].hasBeenVisited() == false) {
-     			howmany+=1;
-     			if (chance3 == 0 && chance1 != 1 && chance2 != 1) {
-     				uncheckedCells.push(maze.cells[currentCell.getRow()][currentCell.getCol()+1]);
-     				maze.cells[currentCell.getRow()][currentCell.getCol()+1].setBeenVisited(true);
-     				currentCell = maze.cells[currentCell.getRow()][currentCell.getCol()+1];
-     			}
-     		}
-     		if (maze.cells[currentCell.getRow()][currentCell.getCol()-1].hasBeenVisited() == false) {
-     			howmany+=1;
-     			if (chance1 != 1 && chance2 != 0 && chance3 != 0) {
-     				uncheckedCells.push(maze.cells[currentCell.getRow()][currentCell.getCol()-1]);
-     				maze.cells[currentCell.getRow()][currentCell.getCol()-1].setBeenVisited(true);
-     				currentCell = maze.cells[currentCell.getRow()][currentCell.getCol()-1];
-     			}
-     		}
-    	
 		// C. if has unvisited neighbors,
 
 		// C1. select one at random.
@@ -118,14 +135,19 @@ public class MazeMaker {
 		// C5. call the selectNextPath method with the current cell
 
 		// D. if all neighbors are visited
+		if (uncheckedCells.isEmpty() == false) {
+			currentCell = uncheckedCells.pop();
+			selectNextPath(currentCell);
+			System.out.println("food");
+		}
 
-		// D1. if the stack is not empty
+	// D1. if the stack is not empty
 
-		// D1a. pop a cell from the stack
+	// D1a. pop a cell from the stack
 
-		// D1b. make that the current cell
+	// D1b. make that the current cell
 
-		// D1c. call the selectNextPath method with the current cell
+	// D1c. call the selectNextPath method with the current cell
 
 	}
 

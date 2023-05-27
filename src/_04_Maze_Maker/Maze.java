@@ -33,7 +33,7 @@ public class Maze {
 
     // 5. This method returns the selected cell
     public Cell getCell(int row, int col){
-        return  null;
+        return  cells[row][col];
     }
 
     public int getRows() {
